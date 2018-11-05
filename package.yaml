@@ -18,6 +18,9 @@ dependencies:
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Launchpad
+  - Launchpad.Prelude
 
 tests:
   launchpad-test:

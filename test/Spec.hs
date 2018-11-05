@@ -14,7 +14,6 @@ main = defaultMain =<< testGroup "Specs" <$> mapM (uncurry testSpec)
   ]
 
 launchpadSpec :: Spec
-launchpadSpec = describe "Launchpad" $ do
-
+launchpadSpec = describe "Launchpad" $
   it "1 + 1 = 2" $
     1 + 1 `shouldBe` (2 :: Int)
