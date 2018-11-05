@@ -1,40 +1,23 @@
 name:                launchpad
 version:             0.1.0.0
-github:              "githubuser/launchpad"
+github:              "lgastako/launchpad"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+author:              "John Evans"
+maintainer:          "lgastako@gmail.com"
+copyright:           "2018 John Evans"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/launchpad#readme>
+description:         See README at <https://github.com/lgastako/launchpad#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- protolude
 
 library:
   source-dirs: src
-
-executables:
-  launchpad-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - launchpad
 
 tests:
   launchpad-test:
@@ -46,3 +29,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - launchpad
+    - tasty
+    - tasty-hspec
+    - tasty-quickcheck
