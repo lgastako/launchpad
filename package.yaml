@@ -14,12 +14,21 @@ description:         See README at <https://github.com/lgastako/launchpad#readme
 
 dependencies:
 - base >= 4.7 && < 5
+- hmidi
+- lens
 - protolude
+- reflex
+- sized-vector
+- type-natural
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Wall
   exposed-modules:
   - Launchpad
+  - Launchpad.Colors
+  - Launchpad.Demos
   - Launchpad.Prelude
 
 tests:
@@ -27,6 +36,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
+    - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
