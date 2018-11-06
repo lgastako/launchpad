@@ -16,7 +16,7 @@ main = defaultMain =<< testGroup "Specs" <$> mapM (uncurry testSpec)
 launchpadSpec :: Spec
 launchpadSpec = describe "Launchpad" $ do
 
-  context "colorVelocity" $ do
+  context "colorVelocity" $
 
     it "should produce the same values as old clojure tests" $ do
 
@@ -25,7 +25,7 @@ launchpadSpec = describe "Launchpad" $ do
       colorVelocity (R 0, G 1) `shouldBe` Velocity 16
       colorVelocity (R 2, G 2) `shouldBe` Velocity 34
 
-  context "notePoint" $ do
+  context "notePoint" $
 
     it "should produce the same values as old clojure tests" $ do
 
@@ -36,7 +36,7 @@ launchpadSpec = describe "Launchpad" $ do
       notePoint (Note 32) `shouldBe` (X 0, Y 2)
       notePoint (Note 34) `shouldBe` (X 2, Y 2)
 
-  context "pointNote" $ do
+  context "pointNote" $
 
     it "should produce the same values as old clojure tests" $ do
       pointNote (X 0, Y 0) `shouldBe` Note 0

@@ -6,7 +6,7 @@ import Launchpad.Prelude hiding ( max
                                 , min
                                 )
 
-import Launchpad
+import Launchpad         hiding ( off )
 
 off :: Int
 off = 0

@@ -6,10 +6,12 @@ module Launchpad.Prelude
   , definitely
   ) where
 
-import Protolude   as X
-
-import Control.Lens as X  (makeFields, makePrisms, (^.))
-import Data.String as X ( String )
+import Control.Lens as X ( (^.)
+                         , makeFields
+                         , makePrisms
+                         )
+import Data.String  as X ( String )
+import Protolude    as X
 
 definitely :: Maybe a -> a
 definitely = fromMaybe (panic "definitely not")

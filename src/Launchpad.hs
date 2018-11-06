@@ -4,8 +4,8 @@
 {-# LANGUAGE LambdaCase             #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
 {-# LANGUAGE NoImplicitPrelude      #-}
-{-# LANGUAGE TemplateHaskell        #-}
 {-# LANGUAGE QuasiQuotes            #-}
+{-# LANGUAGE TemplateHaskell        #-}
 
 module Launchpad
   ( Launchpad
@@ -23,24 +23,28 @@ module Launchpad
   , colorVelocity
   , connect
   , disconnect
+  , emptyBoard
   , e8
   , notePoint
+  , off
   , pointNote
+  , sendBoard
+  , sendRedGreen
   , snat
   ) where
 
 -- TODO: constrain X/Y/Note to appropriate ranges
 
-import Data.Bits
+import Launchpad.Prelude   as P hiding ( state )
+
 import Data.Type.Natural
-import Data.Vector.Sized
-import Launchpad.Prelude hiding (state)
+import Data.Vector.Sized   as V
 import System.MIDI
 import System.MIDI.Utility
 
 data Launchpad = Launchpad
-  { _launchpadConnection   :: Connection
-  , _launchpadState        :: MVar LaunchpadState
+  { _launchpadConnection :: Connection
+  , _launchpadState      :: MVar LaunchpadState
   }
 
 data LaunchpadState
@@ -48,14 +52,13 @@ data LaunchpadState
   | Disconnected
   deriving (Eq, Ord, Read, Show)
 
--- newtype ZZZ = ZZZ (Vector Int (S Z))
-
 type E8 = 'S ('S ('S ('S ('S ('S ('S ('S 'Z)))))))
 
 e8 :: Sing E8
 e8 = [snat| 8 |]
 
-type Board = Vector (Vector Color E8) E8
+type Board = Vector Row E8
+type Row   = Vector Color E8
 
 newtype Note = Note Int
   deriving (Eq, Ord, Read, Show)
@@ -128,4 +131,52 @@ colorVelocity (R r, G g) = Velocity $ 0x10 * g + r + flags
   -- 1..0 red
 
 boardFromList :: [[Color]] -> Maybe Board
-boardFromList xs = join $ fmap (fromList e8) (sequenceA $ fmap (fromList e8) xs)
+boardFromList xs = join (fromList e8 <$> traverse (fromList e8) xs)
+
+boardToList :: Board -> [(Point, Color)]
+boardToList board =
+  [ ((X colNum, Y rowNum), color)
+  | (rowNum, row) <- listOfLists
+  , (colNum, color) <- row
+  ]
+  where
+    listOfRows :: [(Int, Row)]
+    listOfRows = enumerate $ V.toList board
+
+    listOfLists :: [(Int, [(Int, Color)])]
+    listOfLists = fmap f listOfRows
+
+    f :: (Int, Row) -> (Int, [(Int, Color)])
+    f (rowNum, row) = (rowNum, enumerate $ V.toList row)
+
+enumerate :: [a] -> [(Int, a)]
+enumerate = P.zip [0..]
+
+-- | Send the given board to the launchpad.
+sendBoard :: Launchpad -> Board -> IO ()
+sendBoard lp board = traverse_ (uncurry (sendRedGreen lp)) colors
+  where
+    colors :: [(Point, Color)]
+    colors = boardToList board
+
+-- | Render the given red/green values to the row/col of receiver.
+sendRedGreen :: Launchpad -> (X, Y) -> (R, G) -> IO ()
+sendRedGreen lp point color = midiNoteOn (lp ^. connection) note' velocity
+  where
+    note'    = pointNote point
+    velocity = colorVelocity color
+
+midiNoteOn :: Connection -> Note -> Velocity -> IO ()
+midiNoteOn conn (Note n) (Velocity v) = do
+  putStrLn $ "midiNoteOn: " <> show (Note n, Velocity v)
+  send conn $ MidiMessage chan $ NoteOn n v
+  where
+    chan = 1  -- Launchpad is (nearly) always on channel one.
+
+off :: Launchpad -> IO ()
+off = flip sendBoard emptyBoard
+
+emptyBoard :: Board
+emptyBoard = V.replicate e8 row
+  where
+    row = V.replicate e8 (R 0, G 0)
